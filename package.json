@@ -1,0 +1,11 @@
+{
+  "name": "githubminer",
+  "version": "1.0.0",
+  "description": "Simple tool to mine github graphql api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Valor",
+  "license": "ISC"
+}
