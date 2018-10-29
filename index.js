@@ -1,13 +1,7 @@
 const GithubConfigProvider = require('./github/endpoint/config/GithubConfigProvider');
 const GithubEndpoint = require('./github/endpoint/GithubEndpoint');
-
+const ContributorQuery = require('./github/ContributorQuery');
 
 const config = GithubConfigProvider.readConfig();
-
-const query = `query { 
-  repository(owner:"Valor-mmm", name:"Ranner-Backend") {
-    name
-  }
-}`;
-
-GithubEndpoint.callEndpoint(config, null, query).then(res => console.log(res)).catch(err => console.error(err));
+const generatedQuery = (ContributorQuery.createQuery({facebook: 'react', 'Valor-mmm': 'Payinator'}));
+GithubEndpoint.callEndpoint(config, null, generatedQuery).then(res => console.log(res)).catch(err => console.error(err));
