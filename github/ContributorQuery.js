@@ -1,4 +1,6 @@
-const fragment =`fragment repository on Repository {
+const RepositoryDescriptor = require('./RepositoryDescriptor');
+
+const fragment = `fragment repository on Repository {
                     name
                     nameWithOwner
                     description
@@ -9,29 +11,30 @@ const fragment =`fragment repository on Repository {
 
 class ContributorQuery {
 
-    static createQuery(repoList) {
-        if (!repoList || Object.keys(repoList).length === 0) {
-            console.error('Repolist has to include at least one repo but was: ' + repoList);
+    static createQuery(repositoryDescriptorList) {
+        if (!Array.isArray(repositoryDescriptorList) || repositoryDescriptorList.length === 0) {
+            console.error('RepositoryDescriptorList has to include at least one RepositoryDescriptor but was: ' + repositoryDescriptorList);
             return null;
         }
         let queryString = `${fragment}\n{`;
-        for (const owner in repoList) {
-            if (repoList.hasOwnProperty(owner)) {
-                queryString += ContributorQuery.getRepositoryQuery(owner, repoList[owner])
+        for (const repo of repositoryDescriptorList) {
+            if (!(repo instanceof RepositoryDescriptor)) {
+                console.error('Repository list has to contain only RepositoryDescriptor objects!');
+                continue;
             }
+            queryString += ContributorQuery.getRepositoryQuery(repo)
         }
         queryString += '}';
         return queryString;
     }
 
-    static getRepositoryQuery(owner, name) {
-        if (!owner || !name || !(typeof owner === 'string') || !(typeof name === 'string')) {
-            console.error(`Some parameters are missing or not a string! owner: "${owner}" name: ${name}`);
+    static getRepositoryQuery(repoDescriptor) {
+        if (!(repoDescriptor instanceof RepositoryDescriptor)) {
+            console.error(`Parameter has to be a RepositoryDescriptor`);
             return '';
         }
-        const displayOwner = owner.replace(/\W/g, '');
-        const displayName = name.replace(/\W/g, '');
-        return `${displayOwner}_${displayName}: repository(owner: "${owner}", name: "${name}") {
+
+        return `${repoDescriptor.getDisplayValue()}: repository(owner: "${repoDescriptor.owner}", name: "${repoDescriptor.name}") {
             ...repository
         }`
     }
