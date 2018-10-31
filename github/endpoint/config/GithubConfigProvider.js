@@ -4,7 +4,7 @@ const resolve = require('path').resolve;
 
 class GithubConfigProvider {
 
-    static readConfig(relativePath="./github/endpoint/config/github_config.yaml") {
+    static readConfig(relativePath="./github/endpoint/config/github_config_local.yaml") {
         try {
             const absolutePath = resolve(relativePath);
             console.log(absolutePath);

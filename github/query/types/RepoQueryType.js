@@ -1,14 +1,14 @@
 const QueryType = require('../QueryType');
-const Fragments = require('../Fragments');
+const FragmentGenerator = require('../FragmentGenerator');
 
 class RepoQueryType extends QueryType {
 
     composeFragments() {
-        return Fragments.getRepoFragment('').content;
+        return FragmentGenerator.getRepoFragment('').content;
     }
 
     composeRepositoryQuery(repo) {
-        const content = '...' + Fragments.getRepoFragment('').name;
+        const content = '...' + FragmentGenerator.getRepoFragment('').name;
         return QueryType.fillRepoQueryTemplate(repo, content);
     }
 }
