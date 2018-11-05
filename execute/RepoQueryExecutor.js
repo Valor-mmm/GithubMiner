@@ -1,4 +1,5 @@
 const QueryType = require('../github/query/QueryType');
+const ConfigMerger = require('./ConfigMerger');
 const RepoQueryGenerator = require('../github/query/RepoQueryGenerator');
 const GithubConfigProvider = require('../github/endpoint/config/GithubConfigProvider');
 const GithubEndpoint = require('../github/endpoint/GithubEndpoint');
@@ -24,7 +25,7 @@ class RepoQueryExecutor {
             return null;
         }
 
-        const mergedConfig = RepoQueryExecutor.mergeConfig(config);
+        const mergedConfig = ConfigMerger.mergeConfig(config, defaultConfig);
         const composedQuery = RepoQueryExecutor.composeQuery(query, repoList);
         const apiConfig = GithubConfigProvider.readConfig(mergedConfig.apiConfigLocation);
         return GithubEndpoint.callEndpoint(apiConfig, null, composedQuery);
@@ -46,19 +47,6 @@ class RepoQueryExecutor {
         }
 
         return RepoQueryGenerator.createQuery(query, repoList);
-    }
-
-    static mergeConfig(config) {
-        let givenConfig = {};
-        let defaultConf= {};
-        if (config && typeof config  === 'object') {
-            Object.assign(givenConfig, config);
-        }
-
-        Object.assign(defaultConf, defaultConfig);
-        Object.assign(defaultConf, givenConfig);
-
-        return defaultConf;
     }
 }
 
