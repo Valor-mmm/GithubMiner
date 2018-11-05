@@ -1,5 +1,5 @@
 const QueryType = require('../QueryType');
-const FragmentGenerator = require('../FragmentGenerator');
+const FragmentGenerator = require('../RepoFragmentGenerator');
 
 class RepoQueryType extends QueryType {
 
