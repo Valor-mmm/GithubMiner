@@ -1,18 +1,9 @@
-const yaml = require('js-yaml');
-const fs   = require('fs');
-const resolve = require('path').resolve;
+const FileReader = require('../../../FileReader');
 
 class GithubConfigProvider {
 
-    static readConfig(relativePath="./github/endpoint/config/github_config.yaml") {
-        try {
-            const absolutePath = resolve(relativePath);
-            console.log(absolutePath);
-            return yaml.safeLoad(fs.readFileSync(absolutePath, 'utf8'));
-        } catch (e) {
-            console.log(e);
-            return null;
-        }
+    static readConfig(relativePath='./github/endpoint/config/github_config.yaml') {
+        return FileReader.readYamlFile(relativePath);
     }
 }
 
