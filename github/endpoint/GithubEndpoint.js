@@ -4,18 +4,16 @@ class GithubEndpoint {
 
     static async callEndpoint(apiConfig, options, query) {
         const client = GithubEndpoint.createGraphQLClient(apiConfig, options);
-        const data = await client.request(query);
-        console.log(JSON.stringify(data, null, 2));
-        return data;
+        return await client.request(query);
     }
 
     static createGraphQLClient(apiConfig, options) {
         if (!apiConfig || !apiConfig.endpointUrl) {
             console.error('API config with url needed but not specified correctly.');
+            return null;
         }
 
         const mergedOptions = GithubEndpoint.mixOptions(apiConfig, options);
-        console.log(mergedOptions);
 
         return new GraphQLClient(apiConfig.endpointUrl, mergedOptions);
     }
