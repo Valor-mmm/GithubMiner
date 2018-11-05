@@ -6,7 +6,7 @@ class RepositoryDescriptor {
         }
         this.owner = owner;
         this.name = name;
-        this.displayOwner = owner.replace(/\W/g, '');
+        this.displayOwner = owner.replace(/\W/g, '').replace(/^\d+/, '');
         this.displayName = name.replace(/\W/g, '');
     }
 
