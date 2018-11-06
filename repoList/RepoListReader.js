@@ -1,4 +1,4 @@
-const FileReader = require('../FileReader');
+const FileReader = require('../FileHandler');
 const RepositoryDescriptor = require('../github/RepositoryDescriptor');
 
 class RepoListReader {

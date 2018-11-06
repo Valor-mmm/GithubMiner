@@ -2,7 +2,7 @@ const yaml = require('js-yaml');
 const fs   = require('fs');
 const resolve = require('path').resolve;
 
-class FileReader {
+class FileHandler {
 
     static readYamlFile(relativePath) {
         if (!relativePath || !(typeof relativePath === 'string')) {
@@ -11,7 +11,6 @@ class FileReader {
         }
         try {
             const absolutePath = resolve(relativePath);
-            console.log(absolutePath);
             return yaml.safeLoad(fs.readFileSync(absolutePath, 'utf8'));
         } catch (e) {
             console.error(e);
@@ -28,6 +27,14 @@ class FileReader {
         return require(relativePath);
     }
 
+    static writeToJSON(relativePath, content) {
+        try {
+            fs.appendFileSync(relativePath, content);
+        } catch (err) {
+            console.error('Could not write to JSON: ' + err);
+        }
+    }
+
 }
 
-module.exports = FileReader;
+module.exports = FileHandler;

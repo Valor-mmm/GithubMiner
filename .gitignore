@@ -3,3 +3,5 @@
 github_config_local.yaml
 
 node_modules
+
+result/
