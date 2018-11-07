@@ -64,6 +64,9 @@ class RepoListQueryExecutor {
                 const shouldRepeat = ErrorHandler.handleErrors(resultWriter, e);
                 if (shouldRepeat && repeatCounter < 5) {
                     console.log(`Repeating times: ${repeatCounter}`);
+                    const waitTime = 1000 * repeatCounter;
+                    console.log(`Waiting for ${waitTime}`);
+                    await this.sleepFor(waitTime);
                     return this._handleExecution(partialRepoList, executorConfig, query, resultWriter, repeatCounter + 1);
                 }
                 return false;
@@ -71,8 +74,17 @@ class RepoListQueryExecutor {
         }
     }
 
-    static async handleSuccess() {
-        debugger;
+    static sleepFor(ms){
+        return new Promise(resolve=>{
+            setTimeout(resolve,ms)
+        })
+    }
+
+    static async handleSuccess(resultWriter, result) {
+        if (!result || typeof result !== 'object') {
+            console.error('Unexpected result: ' + result);
+        }
+        resultWriter.appendResult(result);
     }
 
 }
