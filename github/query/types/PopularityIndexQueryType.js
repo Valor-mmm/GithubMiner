@@ -17,10 +17,11 @@ class PopularityIndexQueryType extends QueryType {
         const fragments = [];
         fragments.push(RepoFragmentGenerator.getGeneralFragment());
         fragments.push(RepoFragmentGenerator.getDefaultBranchCommitsFragment());
-        fragments.push(RepoFragmentGenerator.getForkInfoFrament());
+        fragments.push(RepoFragmentGenerator.getForkInfoFragment());
         fragments.push(RepoFragmentGenerator.getReleasesFragment());
         fragments.push(RepoFragmentGenerator.getStarsFragment());
         fragments.push(RepoFragmentGenerator.getTimeInfoFragment());
+        fragments.push(RepoFragmentGenerator.getWatchersCountFragment());
         return fragments;
     }
 

@@ -71,7 +71,7 @@ class RepoFragmentGenerator {
         return new Fragment(fragmentName, fragmentContent);
     }
 
-    static getForkInfoFrament() {
+    static getForkInfoFragment() {
         const fragmentName = 'forkInfoFragment';
         const fragmentContent = `fragment ${fragmentName} on ${target} {
             isFork
@@ -85,6 +85,17 @@ class RepoFragmentGenerator {
         const fragmentContent = `fragment ${fragmentName} on ${target} {
               createdAt
               updatedAt
+        }`;
+
+        return new Fragment(fragmentName, fragmentContent);
+    }
+
+    static getWatchersCountFragment() {
+        const fragmentName = 'watcherCountFragment';
+        const fragmentContent = `fragment ${fragmentName} on ${target} {
+            watchers {
+                totalCount
+            }
         }`;
 
         return new Fragment(fragmentName, fragmentContent);
