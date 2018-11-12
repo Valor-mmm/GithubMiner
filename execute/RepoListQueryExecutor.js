@@ -9,7 +9,6 @@ const shortId = require('shortid');
 
 const defaultConfig = {
     apiConfigLocation: void 0,
-    outputFilePath: void 0,
     propertyName: void 0,
     separationSize: 100,
     outputDirPath: `./result/`,
