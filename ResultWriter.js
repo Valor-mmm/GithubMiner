@@ -2,11 +2,13 @@ const FileHandler = require('./FileHandler');
 
 class ResultWriter {
 
-    constructor(resultDirPath) {
+    constructor(resultDirPath, commitThreashold) {
         this.resultDirPath = resultDirPath;
         this.result = {};
         this.repoList = [];
         this.notFoundList = [];
+        this.lastCommit = 0;
+        this.commitThreashold = commitThreashold;
     }
 
     commit() {
@@ -16,7 +18,7 @@ class ResultWriter {
     }
 
     writeResult() {
-        FileHandler.writeToJSON(this.resultDirPath + 'result.json', JSON.stringify(this.result));
+        FileHandler.appendTOJSON(this.resultDirPath + 'result.json', this.result);
     }
 
     writeRepoList() {
@@ -24,7 +26,7 @@ class ResultWriter {
             console.info('Repo List is empty and could not be written!');
             return null;
         }
-        FileHandler.writeToJSON(this.resultDirPath + 'repoList.json', JSON.stringify(this.repoList));
+        FileHandler.appendTOJSON(this.resultDirPath + 'repoList.json', this.repoList);
     }
 
     writeNotFoundList() {
@@ -32,7 +34,7 @@ class ResultWriter {
             console.info('Not found List is empty and could not be written!');
             return null;
         }
-        FileHandler.writeToJSON(this.resultDirPath + 'notFoundList.json', JSON.stringify(this.notFoundList));
+        FileHandler.appendTOJSON(this.resultDirPath + 'notFoundList.json', this.notFoundList);
     }
 
     appendResult(partialResult) {
@@ -42,6 +44,12 @@ class ResultWriter {
         }
 
         Object.assign(this.result, partialResult);
+        const objectSize = Object.keys(this.result).length;
+        if ( objectSize - this.lastCommit > this.commitThreashold) {
+            this.commit();
+            this.lastCommit = objectSize;
+            console.log('Committed temporarily at size: ' + objectSize);
+        }
     }
 
     appendRepoList(partialRepoList) {
@@ -61,7 +69,6 @@ class ResultWriter {
 
         this.notFoundList = this.notFoundList.concat(partialNotFoundList);
     }
-
 
 }
 

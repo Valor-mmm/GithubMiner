@@ -1,2 +1,4 @@
 endpointUrl: "https://api.github.com/graphql"
-apiToken: "dummyToken"
+apiToken:
+  - "dummyToken"
+  - "dummyToken2"

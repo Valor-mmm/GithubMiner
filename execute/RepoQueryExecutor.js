@@ -6,11 +6,13 @@ const GithubEndpoint = require('../github/endpoint/GithubEndpoint');
 
 const defaultConfig = {
     apiConfigLocation: void 0,
+    tokenSwitchId: void 0,
+    options: {timeout: 0}
 };
 
 class RepoQueryExecutor {
 
-    static execute(query, repoList , config) {
+    static execute(query, repoList , config, switchApiToken) {
         if (!query) {
             console.error('Query is needed for the RepoQueryExecutor to execute a query.');
             return null;
@@ -28,7 +30,8 @@ class RepoQueryExecutor {
         const mergedConfig = ConfigMerger.mergeConfig(config, defaultConfig);
         const composedQuery = RepoQueryExecutor.composeQuery(query, repoList);
         const apiConfig = GithubConfigProvider.readConfig(mergedConfig.apiConfigLocation);
-        return GithubEndpoint.callEndpoint(apiConfig, null, composedQuery);
+        apiConfig.tokenSwitchId = mergedConfig.tokenSwitchId;
+        return GithubEndpoint.callEndpoint(apiConfig, mergedConfig.options, composedQuery, switchApiToken);
     }
 
     static composeQuery(query, repoList) {

@@ -2,7 +2,9 @@ const RepoListQueryExecutor = require('./execute/RepoListQueryExecutor');
 const PopularityIndexQueryType = require('./github/query/types/PopularityIndexQueryType');
 
 
-const config = {propertyName: 'repo_name', outputDirPath: './separation200/', separationSize: 200};
-const endpointPromise = RepoListQueryExecutor.execute(new PopularityIndexQueryType(), './repoList/14000Names.json', config);
-endpointPromise.then(console.log('Started execution.'))
-    .catch(err => console.error('Error during execution start. ' + err));
+const config = {propertyName: 'repoName', outputDirPath: './finalResult/', separationSize: 100};
+
+console.time('ExecutionTimer');
+const endpointPromise = RepoListQueryExecutor.execute(new PopularityIndexQueryType(), './repoList/FinalRepoNames.json', config);
+endpointPromise.then(console.timeEnd('ExecutionTimer'))
+    .catch(err => {console.error('Error during execution start. ' + err); console.timeEnd('ExecutionTimer')});
