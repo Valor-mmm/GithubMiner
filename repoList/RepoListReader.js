@@ -1,5 +1,5 @@
-const FileReader = require('../FileHandler');
-const RepositoryDescriptor = require('../github/RepositoryDescriptor');
+const FileReader = require('../FileHandler').FileHander;
+const RepositoryDescriptor = require('../github/RepositoryDescriptor').RepositoryDescriptor;
 
 class RepoListReader {
 

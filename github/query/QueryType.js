@@ -1,4 +1,4 @@
-const RepositoryDescriptor = require('../RepositoryDescriptor');
+const RepositoryDescriptor = require('../RepositoryDescriptor').RepositoryDescriptor;
 
 class QueryType {
 
@@ -14,12 +14,12 @@ class QueryType {
 
     static fillRepoQueryTemplate(repoDescriptor, content) {
         if (!(repoDescriptor instanceof RepositoryDescriptor)) {
-            console.error(`Mandatory parameter "repoDescriptor" has to be a RepositoryDescriptor.`);
+            logger.error(`Mandatory parameter "repoDescriptor" has to be a RepositoryDescriptor.`);
             return '';
         }
 
         if (!content || typeof content !== 'string') {
-            console.error('Mandatory parameter "content" has to be of type string.');
+            logger.error('Mandatory parameter "content" has to be of type string.');
             return '';
         }
 
@@ -37,4 +37,6 @@ class QueryTypeAbstractError extends Error {
     }
 }
 
-module.exports = QueryType;
+exports.QueryType = QueryType;
+
+const logger = require('../../LoggerProvider').getLogger(QueryType);

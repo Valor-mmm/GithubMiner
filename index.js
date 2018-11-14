@@ -1,5 +1,7 @@
-const RepoListQueryCaller = require('./execute/caller/RepoListQueryCaller');
+const RepoListQueryCaller = require('./execute/caller/RepoListQueryCaller').RepoListQueryCaller;
 const PopularityIndexQueryType = require('./github/query/types/PopularityIndexQueryType');
+
+const logger = require('./LoggerProvider').getLogger(null);
 
 
 const config = {propertyName: 'repoName', outputDirPath: './result/', separationSize: 100};

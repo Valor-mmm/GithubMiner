@@ -4,11 +4,11 @@ const DefaultErrorHandler = require('./handler/DefaultErrorHandler');
 
 const timeoutErrorPattern = /timeout/;
 
-class ErrorHandler {
+class ErrorResolver {
 
     static handleErrors(resultWriter, error) {
         if (!error || !error.response || !Array.isArray(error.response.errors)) {
-            console.error('Error object has not the expected form. Can not handle error: ' + error);
+            logger.error('Error object has not the expected form. Can not handle error: ' + error);
             return null;
         }
 
@@ -18,7 +18,7 @@ class ErrorHandler {
         for(const err of error.response.errors) {
             const errorHandler = this.getErrorHandler(err);
             if (typeof errorHandler.handleError !== 'function') {
-                console.error('Error handler is not valid in this context.' + errorHandler);
+                logger.error('Error handler is not valid in this context.' + errorHandler);
                 return null;
             }
 
@@ -29,14 +29,14 @@ class ErrorHandler {
             }
         }
 
-        const shouldRepeat = ErrorHandler.determineShouldRepeat(repeatInfo);
-        console.log('Error handler advices to repeat: ' + shouldRepeat);
+        const shouldRepeat = ErrorResolver.determineShouldRepeat(repeatInfo);
+        logger.log('Error handler advices to repeat: ' + shouldRepeat);
         return shouldRepeat;
     }
 
     static determineShouldRepeat(repeatInfo) {
         if (!Array.isArray(repeatInfo)) {
-            console.error('Can not determine if call should be repeated. RepeatInfo is malformed: ' + repeatInfo);
+            logger.error('Can not determine if call should be repeated. RepeatInfo is malformed: ' + repeatInfo);
             return false;
         }
 
@@ -51,21 +51,21 @@ class ErrorHandler {
 
     static getErrorHandler(error) {
         if (error && error.message && timeoutErrorPattern.test(error.message)) {
-            console.log('Error: TimeoutError');
+            logger.log('Error: TimeoutError');
             return TimeoutErrorHandler;
         }
 
         if (!error || !error.type) {
-            console.error('Given error is an unexpected format: ' + error);
+            logger.error('Given error is an unexpected format: ' + error);
             return null;
         }
 
         switch (error.type) {
             case 'NOT_FOUND':
-                console.log('Error: NotFoundError');
+                logger.log('Error: NotFoundError');
                 return NotFoundErrorHandler;
             default:
-                console.log('Error: DefaultError');
+                logger.log('Error: DefaultError');
                 return DefaultErrorHandler;
 
         }
@@ -73,4 +73,6 @@ class ErrorHandler {
 
 }
 
-module.exports = ErrorHandler;
+exports.ErrorResolver = ErrorResolver;
+
+const logger = require('../../../LoggerProvider').getLogger(ErrorResolver);

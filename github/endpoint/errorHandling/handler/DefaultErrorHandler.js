@@ -3,10 +3,12 @@ class DefaultErrorHandler {
     static handleError(err, options) {
         DefaultErrorHandler._options = options; // Ignore warning: unused
         const message = `Error could not be handled properly! Aborting! Error: "${err}"`;
-        console.error(message);
+        logger.error(message);
         throw new Error(message);
     }
 
 }
 
-module.exports = DefaultErrorHandler;
+exports.DefaultErrorHandler = DefaultErrorHandler;
+
+const logger = require('../../../../LoggerProvider').getLogger(DefaultErrorHandler);

@@ -1,4 +1,4 @@
-const FileReader = require('../../../FileHandler');
+const FileReader = require('../../../FileHandler').FileHander;
 
 class GithubConfigProvider {
 

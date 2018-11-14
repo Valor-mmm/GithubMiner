@@ -11,7 +11,7 @@ class GithubEndpoint {
 
     static createGraphQLClient(apiConfig, options, switchApiToken) {
         if (!apiConfig || !apiConfig.endpointUrl) {
-            console.error('API config with url needed but not specified correctly.');
+            logger.error('API config with url needed but not specified correctly.');
             return null;
         }
 
@@ -21,7 +21,7 @@ class GithubEndpoint {
 
     static mixOptions(apiConfig, options, switchApiToken) {
         if (!apiConfig) {
-            console.warn('No api config or apiToken given. Nothing there to mix in.');
+            logger.warn('No api config or apiToken given. Nothing there to mix in.');
             if (!options) {
                 return {};
             }
@@ -35,7 +35,7 @@ class GithubEndpoint {
         }
 
         if (options && options.headers && options.headers.authorization) {
-            console.warn('Authorization header would have been overwritten. Skipping merge!');
+            logger.warn('Authorization header would have been overwritten. Skipping merge!');
             return options;
         }
 
@@ -57,7 +57,7 @@ class GithubEndpoint {
 
     static getTokenFromConfig(apiConfig, switchApiToken) {
         if (!apiConfig || !apiConfig.apiToken) {
-            console.error('Can not retrieve apiToken form apiConfig: ' + apiConfig);
+            logger.error('Can not retrieve apiToken form apiConfig: ' + apiConfig);
             return null;
         }
 
@@ -66,7 +66,7 @@ class GithubEndpoint {
         }
 
         if (!Array.isArray(apiConfig.apiToken) || apiConfig.apiToken.length < 1) {
-            console.error('ApiToken has to be a non empty list of tokens or a token as string! But was: ', apiConfig.apiToken);
+            logger.error('ApiToken has to be a non empty list of tokens or a token as string! But was: ', apiConfig.apiToken);
             return null;
         }
 
@@ -79,15 +79,17 @@ class GithubEndpoint {
                 return apiConfig.apiToken[tokenSwitch[apiConfig.tokenSwitchId]]
             }
             const newIndex = (tokenSwitch[apiConfig.tokenSwitchId] + 1) % apiConfig.apiToken.length;
-            console.log('Switching to new api token with index: ' + newIndex);
+            logger.log('Switching to new api token with index: ' + newIndex);
             tokenSwitch[apiConfig.tokenSwitchId] = newIndex;
             return apiConfig.apiToken[newIndex];
         } else {
-            console.log('Saving new tokenSwitchId');
+            logger.log('Saving new tokenSwitchId');
             tokenSwitch[apiConfig.tokenSwitchId] = 0;
             return apiConfig.apiToken[0];
         }
     }
 }
 
-module.exports = GithubEndpoint;
+exports.GithubEndpoint = GithubEndpoint;
+
+const logger = require('../../LoggerProvider').getLogger(GithubEndpoint);

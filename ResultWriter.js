@@ -1,14 +1,14 @@
-const FileHandler = require('./FileHandler');
+const FileHandler = require('./FileHandler').FileHander;
 
 class ResultWriter {
 
-    constructor(resultDirPath, commitThreashold) {
+    constructor(resultDirPath, commitThreshold) {
         this.resultDirPath = resultDirPath;
         this.result = {};
         this.repoList = [];
         this.notFoundList = [];
         this.lastCommit = 0;
-        this.commitThreashold = commitThreashold;
+        this.commitThreshold = commitThreshold;
     }
 
     commit() {
@@ -23,7 +23,7 @@ class ResultWriter {
 
     writeRepoList() {
         if (!Array.isArray(this.repoList || this.repoList.length < 1)) {
-            console.info('Repo List is empty and could not be written!');
+            logger.info('Repo List is empty and could not be written!');
             return null;
         }
         FileHandler.appendTOJSON(this.resultDirPath + 'repoList.json', this.repoList);
@@ -31,7 +31,7 @@ class ResultWriter {
 
     writeNotFoundList() {
         if (!Array.isArray(this.notFoundList || this.notFoundList.length < 1)) {
-            console.info('Not found List is empty and could not be written!');
+            logger.info('Not found List is empty and could not be written!');
             return null;
         }
         FileHandler.appendTOJSON(this.resultDirPath + 'notFoundList.json', this.notFoundList);
@@ -39,22 +39,22 @@ class ResultWriter {
 
     appendResult(partialResult) {
         if (!(typeof partialResult === 'object')) {
-            console.log('Could not append to result. Parameter has to be an object.');
+            logger.log('Could not append to result. Parameter has to be an object.');
             return null;
         }
 
         Object.assign(this.result, partialResult);
         const objectSize = Object.keys(this.result).length;
-        if ( objectSize - this.lastCommit > this.commitThreashold) {
+        if ( objectSize - this.lastCommit > this.commitThreshold) {
             this.commit();
             this.lastCommit = objectSize;
-            console.log('Committed temporarily at size: ' + objectSize);
+            logger.log('Committed temporarily at size: ' + objectSize);
         }
     }
 
     appendRepoList(partialRepoList) {
         if (!Array.isArray(partialRepoList)) {
-            console.log('Could not append to repo List. Parameter has to be an array.');
+            logger.log('Could not append to repo List. Parameter has to be an array.');
             return null;
         }
 
@@ -63,7 +63,7 @@ class ResultWriter {
 
     appendNotFoundList(partialNotFoundList) {
         if (!Array.isArray(partialNotFoundList)) {
-            console.log('Could not append to notFound List. Parameter has to be an array.');
+            logger.log('Could not append to notFound List. Parameter has to be an array.');
             return null;
         }
 
@@ -72,4 +72,6 @@ class ResultWriter {
 
 }
 
-module.exports = ResultWriter;
+exports.ResultWriter = ResultWriter;
+
+const logger = require('./LoggerProvider').getLogger(ResultWriter);

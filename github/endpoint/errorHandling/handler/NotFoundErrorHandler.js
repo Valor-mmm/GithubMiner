@@ -1,4 +1,4 @@
-const ResultWriter = require('../../../../ResultWriter');
+const ResultWriter = require('../../../../ResultWriter').ResultWriter;
 
 const messageExtractPattern = /^Could not resolve to a (\w+?) with the \w+? '(.*?)'\.$/;
 
@@ -7,19 +7,19 @@ class NotFoundErrorHandler {
     static handleError(error, options) {
         if (!error || !error.type || error.type !== 'NOT_FOUND') {
             const errMsg = `Can not handle given error "${error}"`;
-            console.error(errMsg);
+            logger.error(errMsg);
             throw new Error(errMsg);
         }
 
         if (!options || !options.errorObject || !(options.resultWriter instanceof ResultWriter)) {
             const errMsg = `Can not handle error without proper options parameter: "${options}"`;
-            console.error(errMsg);
+            logger.error(errMsg);
             throw new Error(errMsg);
         }
 
         if (!options.errorObject.response || !options.errorObject.response.data) {
             const errMsg = `Given error does not contain data in the response!.`;
-            console.error(errMsg);
+            logger.error(errMsg);
             throw new Error(errMsg);
         }
 
@@ -33,7 +33,7 @@ class NotFoundErrorHandler {
     static determineTarget(error) {
         if (!error || !error.message || !Array.isArray(error.path)) {
             const errMsg = `Error object is missing crucial properties for error handling. "${error}"`;
-            console.error(errMsg);
+            logger.error(errMsg);
             throw new Error(errMsg);
         }
 
@@ -41,7 +41,7 @@ class NotFoundErrorHandler {
 
         if (!Array.isArray(match) || match.length !== 3) {
             const errMsg = `Message does not match expected pattern: "${error.message}"`;
-            console.error(errMsg);
+            logger.error(errMsg);
             throw new Error(errMsg);
         }
 
@@ -54,4 +54,6 @@ class NotFoundErrorHandler {
 
 }
 
-module.exports = NotFoundErrorHandler;
+exports.NotFoundErrorHandler = NotFoundErrorHandler;
+
+const logger = require('../../../../LoggerProvider').getLogger(NotFoundErrorHandler);

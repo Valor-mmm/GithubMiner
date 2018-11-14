@@ -1,8 +1,8 @@
-const QueryType = require('../../github/query/QueryType');
+const QueryType = require('../../github/query/QueryType').QueryType;
 const ConfigMerger = require('../ConfigMerger');
-const RepoQueryGenerator = require('../../github/query/RepoQueryGenerator');
+const RepoQueryGenerator = require('../../github/query/RepoQueryGenerator').RepoQueryGenerator;
 const GithubConfigProvider = require('../../github/endpoint/config/GithubConfigProvider');
-const GithubEndpoint = require('../../github/endpoint/GithubEndpoint');
+const GithubEndpoint = require('../../github/endpoint/GithubEndpoint').GithubEndpoint;
 
 const defaultConfig = {
     apiConfigLocation: void 0,
@@ -14,16 +14,16 @@ class RepoQueryCaller {
 
     static execute(query, repoList , config, switchApiToken) {
         if (!query) {
-            console.error('Query is needed for the RepoQueryCaller to execute a query.');
+            logger.error('Query is needed for the RepoQueryCaller to execute a query.');
             return null;
         }
         if (!(typeof query === 'string') && !(query instanceof QueryType)) {
-            console.error('Query parameter has to be a query as string, or a QueryType instance.');
+            logger.error('Query parameter has to be a query as string, or a QueryType instance.');
             return null;
         }
 
         if (!Array.isArray(repoList) || repoList.length < 1) {
-            console.error('An array of repository descriptors(repoList) is needed to execute the query.');
+            logger.error('An array of repository descriptors(repoList) is needed to execute the query.');
             return null;
         }
 
@@ -41,17 +41,27 @@ class RepoQueryCaller {
         }
 
         if (!(query instanceof QueryType)) {
-            console.error('query has to be either a string or an instance of QueryType');
+            logger.error('query has to be either a string or an instance of QueryType');
             return null;
         }
 
         if (!Array.isArray(repoList) || repoList.length < 1) {
-            console.error('An array of repository descriptors(repoList) is needed to create a query.');
+            logger.error('An array of repository descriptors(repoList) is needed to create a query.');
             return null;
         }
 
         return RepoQueryGenerator.createQuery(query, repoList);
     }
+
+    static async handleExecution(apiConfig, fetchOptions, query) {
+        try {
+            const result = await GithubEndpoint.callEndpoint(apiConfig, fetchOptions, query, switchApiToken);
+        } catch (e) {
+
+        }
+    }
 }
 
-module.exports = RepoQueryCaller;
+exports.RepoQueryCaller = RepoQueryCaller;
+
+const logger = require('../../LoggerProvider').getLogger(RepoQueryCaller);

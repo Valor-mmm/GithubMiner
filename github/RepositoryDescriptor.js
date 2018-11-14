@@ -17,7 +17,7 @@ class RepositoryDescriptor {
 
         const separatedDescriptor = nameWithOwner.split('/');
         if (separatedDescriptor.length !== 2) {
-            console.error(`Splitting error! nameWithOwner: "${nameWithOwner}" result: ${separatedDescriptor}`);
+            logger.error(`Splitting error! nameWithOwner: "${nameWithOwner}" result: ${separatedDescriptor}`);
             throw new InvalidConstructorArgsException('Invalid formatted nameWithOwner parameter!');
         }
         return separatedDescriptor;
@@ -40,4 +40,6 @@ class InvalidConstructorArgsException extends TypeError {
 
 }
 
-module.exports = RepositoryDescriptor;
+exports.RepositoryDescriptor = RepositoryDescriptor;
+
+const logger = require('../LoggerProvider').getLogger(RepositoryDescriptor);

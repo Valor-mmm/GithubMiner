@@ -1,9 +1,9 @@
-const RepoQueryCaller = require('./RepoQueryCaller');
-const QueryType = require('../../github/query/QueryType');
+const RepoQueryCaller = require('./RepoQueryCaller').RepoQueryCaller;
+const QueryType = require('../../github/query/QueryType').QueryType;
 const ConfigMerger = require('../ConfigMerger');
 const RepoListReader = require('../../repoList/RepoListReader');
-const ResultWriter = require('../../ResultWriter');
-const ErrorHandler = require('../../github/endpoint/errorHandling/ErrorHandler');
+const ResultWriter = require('../../ResultWriter').ResultWriter;
+const ErrorResolver = require('../../github/endpoint/errorHandling/ErrorResolver').ErrorResolver;
 
 const shortId = require('shortid');
 
@@ -19,18 +19,18 @@ class RepoListQueryCaller {
 
     static async execute(query, repoListLocation, config) {
         if (!query) {
-            console.error('Query is needed for the RepoListQueryCaller to execute a query.');
+            logger.error('Query is needed for the RepoListQueryCaller to execute a query.');
             return null;
         }
         if (!(typeof query === 'string') && !(query instanceof QueryType)) {
-            console.error('Query parameter has to be a query as string, or a QueryType instance.');
+            logger.error('Query parameter has to be a query as string, or a QueryType instance.');
             return null;
         }
 
         const mergedConfig = ConfigMerger.mergeConfig(config, defaultConfig);
         const repoList = mergedConfig.propertyName ?
             RepoListReader.getRepoList(repoListLocation, mergedConfig.propertyName) : RepoListReader.getRepoList(repoListLocation);
-        console.log('Executing repoList of size: ' + repoList.length);
+        logger.log('Executing repoList of size: ' + repoList.length);
         const resultWriter = new ResultWriter(mergedConfig.outputDirPath, mergedConfig.commitThreshold);
         return await this._repeatedExecute(mergedConfig, repoList, query, resultWriter);
     }
@@ -47,7 +47,7 @@ class RepoListQueryCaller {
                 sliceEnd = courser + separationSize;
             }
 
-            console.log(`Executing repoList from ${courser} to ${sliceEnd}`);
+            logger.log(`Executing repoList from ${courser} to ${sliceEnd}`);
             await this._handleExecution(repoList.slice(courser, sliceEnd), executorConfig, query, resultWriter, false);
             courser += separationSize;
         }
@@ -57,21 +57,21 @@ class RepoListQueryCaller {
     static async _handleExecution(partialRepoList, executorConfig, query, resultWriter, isRepeat) {
         const endpointResult = RepoQueryCaller.execute(query, partialRepoList, executorConfig, isRepeat);
         if (!endpointResult) {
-            console.error(`Could not start query for repoList: "${partialRepoList}"`);
+            logger.error(`Could not start query for repoList: "${partialRepoList}"`);
         } else {
             try {
                 const result = await endpointResult;
                 await this.handleSuccess(resultWriter, result);
                 return true;
             } catch (e) {
-                const shouldRepeat = ErrorHandler.handleErrors(resultWriter, e);
+                const shouldRepeat = ErrorResolver.handleErrors(resultWriter, e);
                 if (shouldRepeat && isRepeat) {
-                    console.error('Repeating did not work. Still a timeout');
+                    logger.error('Repeating did not work. Still a timeout');
                 } else if (shouldRepeat) {
-                    console.log('Query will be repeated.');
-                    console.log('Waiting 5 seconds.');
+                    logger.log('Query will be repeated.');
+                    logger.log('Waiting 5 seconds.');
                     await this.sleepFor(5000);
-                    console.log('Repeat query.');
+                    logger.log('Repeat query.');
                     return this._handleExecution(partialRepoList, executorConfig, query, resultWriter, true);
                 }
                 return false;
@@ -87,11 +87,13 @@ class RepoListQueryCaller {
 
     static async handleSuccess(resultWriter, result) {
         if (!result || typeof result !== 'object') {
-            console.error('Unexpected result: ' + result);
+            logger.error('Unexpected result: ' + result);
         }
         resultWriter.appendResult(result);
     }
 
 }
 
-module.exports = RepoListQueryCaller;
+exports.RepoListQueryCaller = RepoListQueryCaller;
+
+const logger = require('../../LoggerProvider').getLogger(RepoListQueryCaller);

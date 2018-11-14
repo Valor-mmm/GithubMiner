@@ -1,4 +1,4 @@
-const QueryType = require('../QueryType');
+const QueryType = require('../QueryType').QueryType;
 const RepoFragmentGenerator = require('../RepoFragmentGenerator');
 
 class PopularityIndexQueryType extends QueryType {
