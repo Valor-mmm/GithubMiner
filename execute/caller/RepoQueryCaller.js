@@ -1,8 +1,8 @@
-const QueryType = require('../github/query/QueryType');
-const ConfigMerger = require('./ConfigMerger');
-const RepoQueryGenerator = require('../github/query/RepoQueryGenerator');
-const GithubConfigProvider = require('../github/endpoint/config/GithubConfigProvider');
-const GithubEndpoint = require('../github/endpoint/GithubEndpoint');
+const QueryType = require('../../github/query/QueryType');
+const ConfigMerger = require('../ConfigMerger');
+const RepoQueryGenerator = require('../../github/query/RepoQueryGenerator');
+const GithubConfigProvider = require('../../github/endpoint/config/GithubConfigProvider');
+const GithubEndpoint = require('../../github/endpoint/GithubEndpoint');
 
 const defaultConfig = {
     apiConfigLocation: void 0,
@@ -10,11 +10,11 @@ const defaultConfig = {
     options: {timeout: 0}
 };
 
-class RepoQueryExecutor {
+class RepoQueryCaller {
 
     static execute(query, repoList , config, switchApiToken) {
         if (!query) {
-            console.error('Query is needed for the RepoQueryExecutor to execute a query.');
+            console.error('Query is needed for the RepoQueryCaller to execute a query.');
             return null;
         }
         if (!(typeof query === 'string') && !(query instanceof QueryType)) {
@@ -28,9 +28,10 @@ class RepoQueryExecutor {
         }
 
         const mergedConfig = ConfigMerger.mergeConfig(config, defaultConfig);
-        const composedQuery = RepoQueryExecutor.composeQuery(query, repoList);
+        const composedQuery = RepoQueryCaller.composeQuery(query, repoList);
         const apiConfig = GithubConfigProvider.readConfig(mergedConfig.apiConfigLocation);
         apiConfig.tokenSwitchId = mergedConfig.tokenSwitchId;
+
         return GithubEndpoint.callEndpoint(apiConfig, mergedConfig.options, composedQuery, switchApiToken);
     }
 
@@ -53,4 +54,4 @@ class RepoQueryExecutor {
     }
 }
 
-module.exports = RepoQueryExecutor;
+module.exports = RepoQueryCaller;

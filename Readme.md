@@ -7,7 +7,7 @@ This is a student project for the [OTH-Regensburg](https://www.oth-regensburg.de
 You have to provide your own GitHub API token in order to execute queries.
 1. Clone the repository
 2. Write a custom api-config containing your token (see ./github/endpoint/config/github_config.yaml)
-3. Add the path to the RepoListQueryExecutor configuration
+3. Add the path to the RepoListQueryCaller configuration
 
 ### Repository list
 The expected format for a list of repositories is als follows:
@@ -25,7 +25,7 @@ The expected format for a list of repositories is als follows:
 To execute a query, simply call the following code:
 ```javascript
 const config = {}
-const endpointPromise = RepoListQueryExecutor.execute(new QueryTypeInstance(), 'RepositoryLisLocation', config);
+const endpointPromise = RepoListQueryCaller.execute(new QueryTypeInstance(), 'RepositoryLisLocation', config);
 endpointPromise.then(console.timeEnd('ExecutionTimer'))
                .catch(err => console.error('Error during execution start. ' + err));
 ```
