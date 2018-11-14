@@ -3,6 +3,7 @@ const ConfigMerger = require('../ConfigMerger');
 const RepoQueryGenerator = require('../../github/query/RepoQueryGenerator').RepoQueryGenerator;
 const GithubConfigProvider = require('../../github/endpoint/config/GithubConfigProvider');
 const GithubEndpoint = require('../../github/endpoint/GithubEndpoint').GithubEndpoint;
+const QueryCaller = require('./QueryCaller').QueryCaller;
 
 const defaultConfig = {
     apiConfigLocation: void 0,
@@ -10,11 +11,11 @@ const defaultConfig = {
     options: {timeout: 0}
 };
 
-class RepoQueryCaller {
+class RepoQueryCaller extends QueryCaller {
 
-    static execute(query, repoList , config, switchApiToken) {
+    static call(query, repoList , config, switchApiToken) {
         if (!query) {
-            logger.error('Query is needed for the RepoQueryCaller to execute a query.');
+            logger.error('Query is needed for the RepoQueryCaller to call a query.');
             return null;
         }
         if (!(typeof query === 'string') && !(query instanceof QueryType)) {
@@ -23,7 +24,7 @@ class RepoQueryCaller {
         }
 
         if (!Array.isArray(repoList) || repoList.length < 1) {
-            logger.error('An array of repository descriptors(repoList) is needed to execute the query.');
+            logger.error('An array of repository descriptors(repoList) is needed to call the query.');
             return null;
         }
 

@@ -1,6 +1,7 @@
-const NotFoundErrorHandler = require('./handler/NotFoundErrorHandler');
+const NotFoundErrorHandler = require('./handler/NotFoundErrorHandler').NotFoundErrorHandler;
 const TimeoutErrorHandler = require('./handler/TimeoutErrorHandler');
-const DefaultErrorHandler = require('./handler/DefaultErrorHandler');
+const DefaultErrorHandler = require('./handler/DefaultErrorHandler').DefaultErrorHandler;
+const ErrorHandler = require('./handler/ErrorHandler').ErrorHandler;
 
 const timeoutErrorPattern = /timeout/;
 
@@ -17,8 +18,8 @@ class ErrorResolver {
 
         for(const err of error.response.errors) {
             const errorHandler = this.getErrorHandler(err);
-            if (typeof errorHandler.handleError !== 'function') {
-                logger.error('Error handler is not valid in this context.' + errorHandler);
+            if (errorHandler instanceof ErrorHandler) {
+                logger.error('The given error handler is not valid! ' + errorHandler);
                 return null;
             }
 

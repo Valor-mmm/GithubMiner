@@ -1,4 +1,6 @@
-class DefaultErrorHandler {
+const ErrorHandler = require('./ErrorHandler').ErrorHandler;
+
+class DefaultErrorHandler extends ErrorHandler{
 
     static handleError(err, options) {
         DefaultErrorHandler._options = options; // Ignore warning: unused

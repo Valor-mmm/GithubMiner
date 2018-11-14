@@ -4,6 +4,7 @@ const ConfigMerger = require('../ConfigMerger');
 const RepoListReader = require('../../repoList/RepoListReader');
 const ResultWriter = require('../../ResultWriter').ResultWriter;
 const ErrorResolver = require('../../github/endpoint/errorHandling/ErrorResolver').ErrorResolver;
+const QueryCaller = require('./QueryCaller').QueryCaller;
 
 const shortId = require('shortid');
 
@@ -15,11 +16,11 @@ const defaultConfig = {
     commitThreshold: 1000
 };
 
-class RepoListQueryCaller {
+class RepoListQueryCaller extends QueryCaller {
 
-    static async execute(query, repoListLocation, config) {
+    static async call(query, repoListLocation, config) {
         if (!query) {
-            logger.error('Query is needed for the RepoListQueryCaller to execute a query.');
+            logger.error('Query is needed for the RepoListQueryCaller to call a query.');
             return null;
         }
         if (!(typeof query === 'string') && !(query instanceof QueryType)) {
@@ -55,7 +56,7 @@ class RepoListQueryCaller {
     }
 
     static async _handleExecution(partialRepoList, executorConfig, query, resultWriter, isRepeat) {
-        const endpointResult = RepoQueryCaller.execute(query, partialRepoList, executorConfig, isRepeat);
+        const endpointResult = RepoQueryCaller.call(query, partialRepoList, executorConfig, isRepeat);
         if (!endpointResult) {
             logger.error(`Could not start query for repoList: "${partialRepoList}"`);
         } else {

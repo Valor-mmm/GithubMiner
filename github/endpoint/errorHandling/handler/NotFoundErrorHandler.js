@@ -1,8 +1,9 @@
 const ResultWriter = require('../../../../ResultWriter').ResultWriter;
+const ErrorHandler = require('./ErrorHandler').ErrorHandler;
 
 const messageExtractPattern = /^Could not resolve to a (\w+?) with the \w+? '(.*?)'\.$/;
 
-class NotFoundErrorHandler {
+class NotFoundErrorHandler extends ErrorHandler {
 
     static handleError(error, options) {
         if (!error || !error.type || error.type !== 'NOT_FOUND') {
