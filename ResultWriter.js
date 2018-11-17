@@ -5,28 +5,34 @@ class ResultWriter {
     constructor(resultDirPath, commitThreshold) {
         this.resultDirPath = resultDirPath;
         this.result = {};
-        this.repoList = [];
+        this.errorList = [];
         this.notFoundList = [];
-        this.lastCommit = 0;
         this.commitThreshold = commitThreshold;
     }
 
     commit() {
         this.writeResult();
-        this.writeRepoList();
+        this.writeErrorList();
         this.writeNotFoundList();
+        this.reset();
+    }
+
+    reset() {
+        this.result = {};
+        this.errorList = [];
+        this.notFoundList = [];
     }
 
     writeResult() {
         FileHandler.appendTOJSON(this.resultDirPath + 'result.json', this.result);
     }
 
-    writeRepoList() {
-        if (!Array.isArray(this.repoList || this.repoList.length < 1)) {
+    writeErrorList() {
+        if (!Array.isArray(this.errorList || this.errorList.length < 1)) {
             logger.info('Repo List is empty and could not be written!');
             return null;
         }
-        FileHandler.appendTOJSON(this.resultDirPath + 'repoList.json', this.repoList);
+        FileHandler.appendTOJSON(this.resultDirPath + 'errorList.json', this.errorList);
     }
 
     writeNotFoundList() {
@@ -44,21 +50,20 @@ class ResultWriter {
         }
 
         Object.assign(this.result, partialResult);
-        const objectSize = Object.keys(this.result).length;
-        if ( objectSize - this.lastCommit > this.commitThreshold) {
+        const resultSize = Object.keys(this.result).length;
+        if ( resultSize > this.commitThreshold) {
             this.commit();
-            this.lastCommit = objectSize;
-            logger.log('Committed temporarily at size: ' + objectSize);
+            logger.log('Committed during execution at size: ' + resultSize);
         }
     }
 
-    appendRepoList(partialRepoList) {
+    appendErrorList(partialRepoList) {
         if (!Array.isArray(partialRepoList)) {
-            logger.log('Could not append to repo List. Parameter has to be an array.');
+            logger.log('Could not append to errorList. Parameter has to be an array.');
             return null;
         }
 
-        this.notFoundList = this.repoList.concat(partialRepoList);
+        this.errorList = this.errorList.concat(partialRepoList);
     }
 
     appendNotFoundList(partialNotFoundList) {

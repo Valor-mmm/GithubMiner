@@ -2,21 +2,23 @@ const NotFoundErrorHandler = require('./handler/NotFoundErrorHandler').NotFoundE
 const TimeoutErrorHandler = require('./handler/TimeoutErrorHandler');
 const DefaultErrorHandler = require('./handler/DefaultErrorHandler').DefaultErrorHandler;
 const ErrorHandler = require('./handler/ErrorHandler').ErrorHandler;
+const ResolveAction = require('./ResolveAction');
 
 const timeoutErrorPattern = /timeout/;
 
 class ErrorResolver {
 
     static handleErrors(resultWriter, error) {
-        if (!error || !error.response || !Array.isArray(error.response.errors)) {
-            logger.error('Error object has not the expected form. Can not handle error: ' + error);
-            return null;
+        let options = {errorObject:error, resultWriter: resultWriter};
+        const resolveInfo = [];
+        const errors = ErrorResolver.extractErrorsFromErrorObject(error);
+
+        if (!Array.isArray(errors)) {
+            logger.error('Could not read errors of given error object. Can not handle error.', + error);
+            return [ResolveAction.PERSIST_ERROR, ResolveAction.ABORT];
         }
 
-        let options = {errorObject:error, resultWriter: resultWriter};
-        const repeatInfo = [];
-
-        for(const err of error.response.errors) {
+        for(const err of errors) {
             const errorHandler = this.getErrorHandler(err);
             if (errorHandler instanceof ErrorHandler) {
                 logger.error('The given error handler is not valid! ' + errorHandler);
@@ -24,15 +26,37 @@ class ErrorResolver {
             }
 
             try {
-                repeatInfo.push(errorHandler.handleError(err, options));
+                resolveInfo.push(errorHandler.handleError(err, options));
             } catch (e) {
                 resultWriter.commit();
             }
         }
 
-        const shouldRepeat = ErrorResolver.determineShouldRepeat(repeatInfo);
-        logger.log('Error handler advices to repeat: ' + shouldRepeat);
-        return shouldRepeat;
+        return this.determineResolveActions(resolveInfo);
+    }
+
+    static determineResolveActions(resolveInfo) {
+        if (!Array.isArray(resolveInfo)) {
+            logger.error('Can not determine ResolveAction because resolveInfo is malformed.' , resolveInfo);
+            return null;
+        }
+
+        const shouldRepeat = ErrorResolver.determineShouldRepeat(resolveInfo);
+        const resolveActions = resolveInfo.map((elem) => elem.resolveActions)
+            .reduce((accum, elem) => {
+                if (!Array.isArray(elem)) {
+                    logger.warn(`Had to convert ${elem} to array. ErrorHandler should return array of ResolveActions.`);
+                    elem = [elem];
+                }
+                return accum.concat(elem)
+            })
+            .filter((elem, index, self) => self.indexOf(elem) === index);
+
+        if (shouldRepeat) {
+            resolveActions.push(ResolveAction.REPEAT);
+        }
+
+        return resolveActions;
     }
 
     static determineShouldRepeat(repeatInfo) {
@@ -70,6 +94,15 @@ class ErrorResolver {
                 return DefaultErrorHandler;
 
         }
+    }
+
+    static extractErrorsFromErrorObject(errorObject) {
+        if (!errorObject || !errorObject.response || !Array.isArray(errorObject.response.errors)) {
+            logger.error('Error object has not the expected form. Can not handle error: ' + errorObject);
+            return null;
+        }
+
+        return errorObject.response.errors;
     }
 
 }

@@ -9,4 +9,4 @@ const config = {propertyName: 'repoName', outputDirPath: './result/', separation
 console.time('ExecutionTimer');
 const endpointPromise = RepoListQueryCaller.call(new PopularityIndexQueryType(), './repoList/repoList.json', config);
 endpointPromise.then(console.timeEnd('ExecutionTimer'))
-    .catch(err => {console.error('Error during execution start. ' + err); console.timeEnd('ExecutionTimer')});
+    .catch(err => {console.error(err); console.timeEnd('ExecutionTimer')});

@@ -1,34 +1,40 @@
 const ResultWriter = require('../../../../ResultWriter').ResultWriter;
 const ErrorHandler = require('./ErrorHandler').ErrorHandler;
+const ResolveAction = require('../ResolveAction');
 
 const messageExtractPattern = /^Could not resolve to a (\w+?) with the \w+? '(.*?)'\.$/;
 
 class NotFoundErrorHandler extends ErrorHandler {
 
     static handleError(error, options) {
+        const failedHandling = {
+            shouldRepeat: false,
+            preventRepeat: true,
+            resolveActions: [ResolveAction.PERSIST_ERROR, ResolveAction.ABORT]
+        };
         if (!error || !error.type || error.type !== 'NOT_FOUND') {
             const errMsg = `Can not handle given error "${error}"`;
             logger.error(errMsg);
-            throw new Error(errMsg);
+            return failedHandling;
         }
 
         if (!options || !options.errorObject || !(options.resultWriter instanceof ResultWriter)) {
             const errMsg = `Can not handle error without proper options parameter: "${options}"`;
             logger.error(errMsg);
-            throw new Error(errMsg);
+            return failedHandling;
         }
 
         if (!options.errorObject.response || !options.errorObject.response.data) {
             const errMsg = `Given error does not contain data in the response!.`;
             logger.error(errMsg);
-            throw new Error(errMsg);
+            return failedHandling;
         }
 
         const target = NotFoundErrorHandler.determineTarget(error);
         options.resultWriter.appendNotFoundList([target]);
         options.resultWriter.appendResult(options.errorObject.response.data);
 
-        return {preventRepeat: false, shouldRepeat: false};
+        return {preventRepeat: false, shouldRepeat: false, resolveActions: [ResolveAction.RESOLVE]};
     }
 
     static determineTarget(error) {

@@ -1,25 +1,26 @@
 const QueryType = require('../../github/query/QueryType').QueryType;
+const PaginationQueryType = require('../../github/query/PaginationQueryType').PaginationQueryType;
 const ConfigMerger = require('../ConfigMerger');
-const RepoQueryGenerator = require('../../github/query/RepoQueryGenerator').RepoQueryGenerator;
 const GithubConfigProvider = require('../../github/endpoint/config/GithubConfigProvider');
-const GithubEndpoint = require('../../github/endpoint/GithubEndpoint').GithubEndpoint;
+const QueryExecutorFactory = require('../executors/QueryExecutorFactory').QueryExecutorFactory;
 const QueryCaller = require('./QueryCaller').QueryCaller;
 
 const defaultConfig = {
     apiConfigLocation: void 0,
     tokenSwitchId: void 0,
-    options: {timeout: 0}
+    options: {timeout: 0},
+    switchApiToken: false
 };
 
 class RepoQueryCaller extends QueryCaller {
 
-    static call(query, repoList , config, switchApiToken) {
+    static call(query, repoList , config, resultWriter) {
         if (!query) {
             logger.error('Query is needed for the RepoQueryCaller to call a query.');
             return null;
         }
-        if (!(typeof query === 'string') && !(query instanceof QueryType)) {
-            logger.error('Query parameter has to be a query as string, or a QueryType instance.');
+        if (!(typeof query === 'string') && !(query instanceof QueryType) && !(query instanceof PaginationQueryType)) {
+            logger.error('Query parameter has to be a query as string, or a (Pagination)QueryType instance.');
             return null;
         }
 
@@ -29,37 +30,22 @@ class RepoQueryCaller extends QueryCaller {
         }
 
         const mergedConfig = ConfigMerger.mergeConfig(config, defaultConfig);
-        const composedQuery = RepoQueryCaller.composeQuery(query, repoList);
         const apiConfig = GithubConfigProvider.readConfig(mergedConfig.apiConfigLocation);
         apiConfig.tokenSwitchId = mergedConfig.tokenSwitchId;
+        const queryExecutor = QueryExecutorFactory.getInstance(query);
 
-        return GithubEndpoint.callEndpoint(apiConfig, mergedConfig.options, composedQuery, switchApiToken);
-    }
-
-    static composeQuery(query, repoList) {
-        if (typeof query === 'string') {
-            return query;
-        }
-
-        if (!(query instanceof QueryType)) {
-            logger.error('query has to be either a string or an instance of QueryType');
+        if (!queryExecutor) {
+            logger.error('Can not call endpoint, because no fitting QueryExecutor could be found for given query: ' + query);
             return null;
         }
 
-        if (!Array.isArray(repoList) || repoList.length < 1) {
-            logger.error('An array of repository descriptors(repoList) is needed to create a query.');
-            return null;
-        }
+        const options = {
+            switchApiToken: mergedConfig.switchApiToken,
+            apiConfig: apiConfig,
+            fetchOptions: mergedConfig.options,
+        };
 
-        return RepoQueryGenerator.createQuery(query, repoList);
-    }
-
-    static async handleExecution(apiConfig, fetchOptions, query) {
-        try {
-            const result = await GithubEndpoint.callEndpoint(apiConfig, fetchOptions, query, switchApiToken);
-        } catch (e) {
-
-        }
+        return queryExecutor.execute(query, repoList, resultWriter, options);
     }
 }
 

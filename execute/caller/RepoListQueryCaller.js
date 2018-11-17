@@ -23,10 +23,6 @@ class RepoListQueryCaller extends QueryCaller {
             logger.error('Query is needed for the RepoListQueryCaller to call a query.');
             return null;
         }
-        if (!(typeof query === 'string') && !(query instanceof QueryType)) {
-            logger.error('Query parameter has to be a query as string, or a QueryType instance.');
-            return null;
-        }
 
         const mergedConfig = ConfigMerger.mergeConfig(config, defaultConfig);
         const repoList = mergedConfig.propertyName ?
@@ -53,44 +49,13 @@ class RepoListQueryCaller extends QueryCaller {
             courser += separationSize;
         }
         resultWriter.commit();
+        return true;
     }
 
-    static async _handleExecution(partialRepoList, executorConfig, query, resultWriter, isRepeat) {
-        const endpointResult = RepoQueryCaller.call(query, partialRepoList, executorConfig, isRepeat);
-        if (!endpointResult) {
-            logger.error(`Could not start query for repoList: "${partialRepoList}"`);
-        } else {
-            try {
-                const result = await endpointResult;
-                await this.handleSuccess(resultWriter, result);
-                return true;
-            } catch (e) {
-                const shouldRepeat = ErrorResolver.handleErrors(resultWriter, e);
-                if (shouldRepeat && isRepeat) {
-                    logger.error('Repeating did not work. Still a timeout');
-                } else if (shouldRepeat) {
-                    logger.log('Query will be repeated.');
-                    logger.log('Waiting 5 seconds.');
-                    await this.sleepFor(5000);
-                    logger.log('Repeat query.');
-                    return this._handleExecution(partialRepoList, executorConfig, query, resultWriter, true);
-                }
-                return false;
-            }
-        }
-    }
-
-    static sleepFor(ms){
-        return new Promise(resolve=>{
-            setTimeout(resolve,ms)
-        })
-    }
-
-    static async handleSuccess(resultWriter, result) {
-        if (!result || typeof result !== 'object') {
-            logger.error('Unexpected result: ' + result);
-        }
-        resultWriter.appendResult(result);
+    static async _handleExecution(partialRepoList, config, query, resultWriter) {
+        const result = await RepoQueryCaller.call(query, partialRepoList, config, resultWriter);
+        logger.info('Partial call was successful: ' + result);
+        return result;
     }
 
 }
