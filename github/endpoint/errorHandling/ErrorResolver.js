@@ -49,7 +49,7 @@ class ErrorResolver {
                     elem = [elem];
                 }
                 return accum.concat(elem)
-            })
+            }, [])
             .filter((elem, index, self) => self.indexOf(elem) === index);
 
         if (shouldRepeat) {

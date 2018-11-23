@@ -1,3 +1,6 @@
+const displayOwnerRegex = /(?:^\d+|\W)/g;
+const displayNameRegex = /\W/g;
+
 class RepositoryDescriptor {
 
     constructor(owner, name) {
@@ -6,8 +9,8 @@ class RepositoryDescriptor {
         }
         this.owner = owner;
         this.name = name;
-        this.displayOwner = owner.replace(/\W/g, '').replace(/^\d+/, '');
-        this.displayName = name.replace(/\W/g, '');
+        this.displayOwner = owner.replace(displayOwnerRegex, '');
+        this.displayName = name.replace(displayNameRegex, '');
     }
 
     static separateNameWithOwner(nameWithOwner) {
@@ -29,6 +32,17 @@ class RepositoryDescriptor {
 
     getNameWithOwner() {
         return `${this.name}/${this.owner}`;
+    }
+
+    static getRepoDescrByNameWithOwner(nameWithOwner) {
+        if (!nameWithOwner || !(typeof nameWithOwner === 'string')) {
+            logger.error('Mandatory parameter nameWithOwner has to be a defined string.');
+            return null;
+        }
+
+        const separation = RepositoryDescriptor.separateNameWithOwner(nameWithOwner);
+
+        return new RepositoryDescriptor(separation[0], separation[1]);
     }
 }
 

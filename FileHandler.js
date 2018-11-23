@@ -1,6 +1,13 @@
 const yaml = require('js-yaml');
 const fs   = require('fs');
 const resolve = require('path').resolve;
+const _ = require('lodash');
+
+const lodashConcatArrayCustomizer = function concatArrayCustomizer(objValue, srcValue) {
+    if (_.isArray(objValue)) {
+        return objValue.concat(srcValue);
+    }
+};
 
 class FileHandler {
 
@@ -61,7 +68,7 @@ class FileHandler {
                 logger.log('New file length: ' + content.length);
             } else {
                 logger.log(`Saved new content with length of ${Object.keys(content).length} to existing file with length ${Object.keys(fileContent).length}`);
-                Object.assign(content, fileContent);
+                content = _.mergeWith(content, fileContent, lodashConcatArrayCustomizer);
                 logger.log('New file length: ' + Object.keys(content).length);
             }
         }
@@ -71,5 +78,6 @@ class FileHandler {
 }
 
 exports.FileHander = FileHandler;
+exports.lodashConcatArrayCustomizer = lodashConcatArrayCustomizer;
 
 const logger = require('./LoggerProvider').getLogger(FileHandler);

@@ -1,5 +1,5 @@
 const QueryType = require('../../github/query/QueryType').QueryType;
-const PaginationQueryType = require('../../github/query/PaginationQueryType').PaginationQueryType;
+const PaginationQueryType = require('../../github/query/pagination/PaginationQueryType').PaginationQueryType;
 const SimpleQueryExecutor = require('./SimpleQueryExecutor').SimpleQueryExecutor;
 const PaginationQueryExecutor = require('./PaginationQueryExecutor').PaginationQueryExecutor;
 

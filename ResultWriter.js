@@ -1,4 +1,6 @@
 const FileHandler = require('./FileHandler').FileHander;
+const lodashConcatArrayCustomizer = require('./FileHandler').lodashConcatArrayCustomizer;
+const _ = require('lodash');
 
 class ResultWriter {
 
@@ -49,7 +51,7 @@ class ResultWriter {
             return null;
         }
 
-        Object.assign(this.result, partialResult);
+        this.result = _.mergeWith(this.result, partialResult, lodashConcatArrayCustomizer);
         const resultSize = Object.keys(this.result).length;
         if ( resultSize > this.commitThreshold) {
             this.commit();
@@ -57,13 +59,13 @@ class ResultWriter {
         }
     }
 
-    appendErrorList(partialRepoList) {
-        if (!Array.isArray(partialRepoList)) {
+    appendErrorList(partialErrorList) {
+        if (!Array.isArray(partialErrorList)) {
             logger.log('Could not append to errorList. Parameter has to be an array.');
             return null;
         }
 
-        this.errorList = this.errorList.concat(partialRepoList);
+        this.errorList = this.errorList.concat(partialErrorList);
     }
 
     appendNotFoundList(partialNotFoundList) {

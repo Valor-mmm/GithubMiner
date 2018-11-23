@@ -1,4 +1,4 @@
-const Fragment = require('./Fragment');
+const Fragment = require('./Fragment').Fragment;
 
 const target = 'Repository';
 
@@ -96,6 +96,15 @@ class RepoFragmentGenerator {
             watchers {
                 totalCount
             }
+        }`;
+
+        return new Fragment(fragmentName, fragmentContent);
+    }
+
+    static getNameWithOwnerFragment() {
+        const fragmentName = 'nameWithOwnerFragment';
+        const fragmentContent = `fragment ${fragmentName} on ${target} {
+           nameWithOwner 
         }`;
 
         return new Fragment(fragmentName, fragmentContent);

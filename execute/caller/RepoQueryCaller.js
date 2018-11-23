@@ -1,5 +1,5 @@
 const QueryType = require('../../github/query/QueryType').QueryType;
-const PaginationQueryType = require('../../github/query/PaginationQueryType').PaginationQueryType;
+const PaginationQueryType = require('../../github/query/pagination/PaginationQueryType').PaginationQueryType;
 const ConfigMerger = require('../ConfigMerger');
 const GithubConfigProvider = require('../../github/endpoint/config/GithubConfigProvider');
 const QueryExecutorFactory = require('../executors/QueryExecutorFactory').QueryExecutorFactory;

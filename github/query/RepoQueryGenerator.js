@@ -1,5 +1,6 @@
 const QueryType = require('./QueryType').QueryType;
 const RepositoryDescriptor = require('../RepositoryDescriptor').RepositoryDescriptor;
+const PaginationQueryType = require('./pagination/PaginationQueryType').PaginationQueryType;
 
 class RepoQueryGenerator {
 
@@ -9,8 +10,8 @@ class RepoQueryGenerator {
             return null;
         }
 
-        if (!queryType || !(queryType instanceof QueryType)) {
-            logger.error('Query type parameter has to be of type "QueryType".');
+        if (!queryType || (!(queryType instanceof QueryType) && !(queryType instanceof PaginationQueryType))) {
+            logger.error('Query type parameter has to be of type "(Pagination)QueryType".');
             return null;
         }
 
