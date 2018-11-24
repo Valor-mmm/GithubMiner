@@ -57,6 +57,10 @@ class PaginationContributorQueryType extends PaginationQueryType {
         const paginationDescriptor = new PaginationDescriptor(paginationSize);
         for (const repo in data) {
             if (data.hasOwnProperty(repo)) {
+                if (!data[repo]) {
+                    logger.info(`Data for ${repo} is null.`, data[repo]);
+                    continue;
+                }
                 const paginationInfo = _.get(data[repo], 'defaultBranchRef.target.history.pageInfo', null);
                 const nameWithOwner = _.get(data[repo], 'nameWithOwner', null);
                 const repositoryDescriptor = RepositoryDescriptor.getRepoDescrByNameWithOwner(nameWithOwner);
@@ -65,7 +69,6 @@ class PaginationContributorQueryType extends PaginationQueryType {
                     continue;
                 }
                 paginationDescriptor.addPaginationValue(PaginationPlaceholder.CONTRIBUTOR_COMMIT_PAGINATION, paginationInfo, repositoryDescriptor);
-
             }
         }
 
