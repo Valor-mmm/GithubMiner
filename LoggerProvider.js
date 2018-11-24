@@ -8,6 +8,11 @@ const loggers = {
     defaultLogger: logplease.create('DefaultLogger')
 };
 
+const loggerOptions = {
+    filename: './loggerFile.log',
+    appendFile: false
+};
+
 const getLogger = function getLogger(targetClass) {
     if (!targetClass) {
         LoggerProviderLogger.warn('TargetClass for logger determination is missing: ' + targetClass);
@@ -16,7 +21,7 @@ const getLogger = function getLogger(targetClass) {
 
     if (targetClass.name) {
         if (!loggers[targetClass.name]) {
-            loggers[targetClass.name] = logplease.create(targetClass.name);
+            loggers[targetClass.name] = logplease.create(targetClass.name, loggerOptions);
         }
         return loggers[targetClass.name];
     }

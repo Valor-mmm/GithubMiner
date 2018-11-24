@@ -1,9 +1,7 @@
 const RepoQueryCaller = require('./RepoQueryCaller').RepoQueryCaller;
-const QueryType = require('../../github/query/QueryType').QueryType;
 const ConfigMerger = require('../ConfigMerger');
 const RepoListReader = require('../../repoList/RepoListReader');
 const ResultWriter = require('../../ResultWriter').ResultWriter;
-const ErrorResolver = require('../../github/endpoint/errorHandling/ErrorResolver').ErrorResolver;
 const QueryCaller = require('./QueryCaller').QueryCaller;
 
 const shortId = require('shortid');
@@ -19,6 +17,8 @@ const defaultConfig = {
 class RepoListQueryCaller extends QueryCaller {
 
     static async call(query, repoListLocation, config) {
+        const timeLogName = 'RepoListQueryCaller';
+        console.time(timeLogName);
         if (!query) {
             logger.error('Query is needed for the RepoListQueryCaller to call a query.');
             return null;
@@ -27,9 +27,11 @@ class RepoListQueryCaller extends QueryCaller {
         const mergedConfig = ConfigMerger.mergeConfig(config, defaultConfig);
         const repoList = mergedConfig.propertyName ?
             RepoListReader.getRepoList(repoListLocation, mergedConfig.propertyName) : RepoListReader.getRepoList(repoListLocation);
-        logger.log('Executing repoList of size: ' + repoList.length);
+        logger.info('Executing repoList of size: ' + repoList.length);
         const resultWriter = new ResultWriter(mergedConfig.outputDirPath, mergedConfig.commitThreshold);
-        return await this._repeatedExecute(mergedConfig, repoList, query, resultWriter);
+        const result = await this._repeatedExecute(mergedConfig, repoList, query, resultWriter);
+        console.timeEnd(timeLogName);
+        return result;
     }
 
     static async _repeatedExecute(config, repoList, query, resultWriter) {
@@ -44,7 +46,7 @@ class RepoListQueryCaller extends QueryCaller {
                 sliceEnd = courser + separationSize;
             }
 
-            logger.log(`Executing repoList from ${courser} to ${sliceEnd}`);
+            logger.info(`Executing repoList from ${courser} to ${sliceEnd}`);
             await this._handleExecution(repoList.slice(courser, sliceEnd), executorConfig, query, resultWriter, false);
             courser += separationSize;
         }

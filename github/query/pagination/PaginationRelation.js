@@ -1,6 +1,8 @@
 const PaginationDescriptor = require('./PaginationDescriptor').PaginationDescriptor;
 const RepositoryDescriptor = require('../../RepositoryDescriptor').RepositoryDescriptor;
 
+const endPointerExtractRegex = /\w*?\s(\d+)/;
+
 class PaginationRelation {
     constructor(paginationEnum, paginationValue, displayValue) {
         if (!paginationEnum || !(typeof paginationEnum === 'object') || !paginationEnum.toString) {
@@ -68,10 +70,11 @@ class PaginationRelation {
                 for (const value in enumValues) {
                     if (enumValues.hasOwnProperty(value)) {
                         const content = enumValues[value];
-                        const paginationValue = PaginationRelation.composePaginationValue(content.paginationInfo, paginationDescriptor.paginationSize);
                         const displayValue = content.repositoryDescriptor.getDisplayValue();
+                        logger.debug(`Constructing paginationRelation for repo: ${displayValue}`);
+                        const paginationValue = PaginationRelation.composePaginationValue(content.paginationInfo, paginationDescriptor.paginationSize);
                         if (!displayValue || !paginationValue) {
-                            console.debug('Could not determine a pagination value. Skipping entry.');
+                            logger.debug('Could not determine a pagination value. Skipping entry.');
                             continue;
                         }
                         result.push(new PaginationRelation(content.paginationEnum, paginationValue, displayValue));
@@ -105,10 +108,24 @@ class PaginationRelation {
         }
 
         logger.debug('Creating paginationValue for size of ' + paginationSize);
+        logger.info(`Pagination endPointer is ${PaginationRelation.parseEndpointer(paginationInfo.endCursor)}`);
         return `first: ${paginationSize} after: "${paginationInfo.endCursor}"`;
     }
 
+    static parseEndpointer(endPointer) {
+        if (!endPointer || !(typeof endPointer === 'string')) {
+            logger.error('Mandatory endPointer has to be defined and a string.', endPointer);
+            return null;
+        }
 
+        const match = endPointerExtractRegex.exec(endPointer);
+        if (!match) {
+            logger.warn('Could not find a match in the endPointer: ', endPointer);
+            return null;
+        }
+
+        return match[1];
+    }
 }
 
 class PaginationRelationError extends Error {
